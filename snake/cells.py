@@ -61,6 +61,16 @@ class PoisonCell(Cell):
         return None if self.is_eaten else self
 
 
+class SuicideCell(Cell):
+    color = COLORS.RED
+
+    def on_bump(self, game):
+        game.is_dead = True
+
+    def update(self, game):
+        return self
+
+
 class DeathWallCell(Cell):
     color = COLORS.GREY
 

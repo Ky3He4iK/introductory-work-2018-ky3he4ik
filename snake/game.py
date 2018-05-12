@@ -57,6 +57,7 @@ class Game:
 
         self.spawn_food()
         self.spawn_poison_food()
+        self.spawn_suicide_food()
 
     def spawn_food(self):
         y, x = self.field.get_random_empty_cell()
@@ -65,6 +66,9 @@ class Game:
     def spawn_poison_food(self):
         y, x = self.field.get_random_empty_cell()
         self.field.set_cell(y, x, PoisonCell())
+
+    def spawn_suicide_food(self):
+        self.field.change_suicide_cell()
 
     def pause(self):
         self.is_paused = not self.is_paused
