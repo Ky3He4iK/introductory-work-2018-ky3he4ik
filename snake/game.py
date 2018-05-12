@@ -106,3 +106,6 @@ class Game:
             self.snake.head = new_y, new_x
             return True
         return False
+
+    def restart(self):
+        self.__init__(self.field.width, self.field.height)

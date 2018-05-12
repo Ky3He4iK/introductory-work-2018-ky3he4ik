@@ -66,6 +66,7 @@ class SuicideCell(Cell):
 
     def on_bump(self, game):
         game.is_dead = True
+        return
 
     def update(self, game):
         return self

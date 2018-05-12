@@ -1,6 +1,7 @@
 import random
 from .cells import SuicideCell
 
+
 class Field:
     def __init__(self,  width=20, height=20):
         self.width = width

@@ -5,8 +5,10 @@ from PyQt5.QtGui import QPainter
 from snake.renderer import Renderer
 from snake.game import TurnEnum
 
+
+# TODO: добавить ЦУП (настройки)
 class Board(QFrame):
-    UPDATE_INTERVAL = 120
+    UPDATE_INTERVAL = 30  # RUNNING IN THE 90'S
     statusUpdated = pyqtSignal(str)
 
     def __init__(self, game, parent):
@@ -41,18 +43,19 @@ class Board(QFrame):
             self.game.pause()
             return
 
-        # if key == Qt.Key_R: //todo: add restart
+        if key == Qt.Key_R:
+            self.game.restart()
 
         if self.game.is_paused:
             return
 
-        if key == Qt.Key_Left:
+        if key == Qt.Key_Left or key == Qt.Key_A:
             self.game.turn(TurnEnum.LEFT)
-        elif key == Qt.Key_Right:
+        elif key == Qt.Key_Right or key == Qt.Key_D:
             self.game.turn(TurnEnum.RIGHT)
-        elif key == Qt.Key_Down:
+        elif key == Qt.Key_Down or key == Qt.Key_S:
             self.game.turn(TurnEnum.DOWN)
-        elif key == Qt.Key_Up:
+        elif key == Qt.Key_Up or key == Qt.Key_W:
             self.game.turn(TurnEnum.UP)
         else:
             super().keyPressEvent(event)
@@ -74,9 +77,9 @@ class SnakeWindow(QMainWindow):
         self.board = Board(game, self)
         self.status_bar = self.statusBar()
 
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         self.setCentralWidget(self.board)
 
         self.board.statusUpdated[str].connect(self.status_bar.showMessage)

@@ -1,5 +1,6 @@
 from PyQt5.QtGui import QColor
 
+
 class COLORS:
     GREY = 0x666666
     RED = 0xCC6666
@@ -12,17 +13,6 @@ class COLORS:
 
 
 class Renderer:
-    COLOR_TABLE = {
-        'grey'      : 0x666666,
-        'red'       : 0xCC6666,
-        'green'     : 0x66CC66,
-        'blue'      : 0x6666CC,
-        'brown'     : 0xCCCC66,
-        'purple'    : 0xCC66CC,
-        'turquoise' : 0x66CCCC,
-        'yellow'    : 0xDAAA00,
-    }
-
     def __init__(self, painter):
         self.painter = painter
 
