@@ -1,5 +1,5 @@
 from .field import Field
-from .cells import SnakeCell, FoodCell, DeathWallCell
+from .cells import SnakeCell, FoodCell, DeathWallCell, PoisonCell
 
 
 class TurnEnum:
@@ -56,10 +56,15 @@ class Game:
             self.field.set_cell(y, self.field.height - 1, DeathWallCell())
 
         self.spawn_food()
+        self.spawn_poison_food()
 
     def spawn_food(self):
         y, x = self.field.get_random_empty_cell()
         self.field.set_cell(y, x, FoodCell())
+
+    def spawn_poison_food(self):
+        y, x = self.field.get_random_empty_cell()
+        self.field.set_cell(y, x, PoisonCell())
 
     def pause(self):
         self.is_paused = not self.is_paused
@@ -78,6 +83,10 @@ class Game:
         cell = self.field.get_cell(*self.snake.head)
         if cell is not None:
             cell.on_bump(self)
+
+        self.field.set_cell(*self.snake.head, SnakeCell(time_to_live=self.snake.len))
+        # Костыль. Зато обновление длины змейки происходит в тот же тик, а не следующий
+        # TODO: придумать замену этому костылю
 
         if self.is_dead:
             return
