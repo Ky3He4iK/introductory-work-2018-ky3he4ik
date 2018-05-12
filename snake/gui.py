@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QPainter
 
 from snake.renderer import Renderer
-
+from snake.game import TurnEnum
 
 class Board(QFrame):
     UPDATE_INTERVAL = 120
@@ -41,17 +41,19 @@ class Board(QFrame):
             self.game.pause()
             return
 
+        # if key == Qt.Key_R: //todo: add restart
+
         if self.game.is_paused:
             return
 
         if key == Qt.Key_Left:
-            self.game.turn('left')
+            self.game.turn(TurnEnum.LEFT)
         elif key == Qt.Key_Right:
-            self.game.turn('right')
+            self.game.turn(TurnEnum.RIGHT)
         elif key == Qt.Key_Down:
-            self.game.turn('down')
+            self.game.turn(TurnEnum.DOWN)
         elif key == Qt.Key_Up:
-            self.game.turn('up')
+            self.game.turn(TurnEnum.UP)
         else:
             super().keyPressEvent(event)
 
@@ -89,4 +91,3 @@ class SnakeWindow(QMainWindow):
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2,
                   (screen.height() - size.height()) / 2)
-

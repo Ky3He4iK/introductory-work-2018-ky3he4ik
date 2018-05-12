@@ -2,12 +2,19 @@ from .field import Field
 from .cells import SnakeCell, FoodCell, DeathWallCell
 
 
+class TurnEnum:
+    UP = 'up'
+    DOWN = 'down'
+    LEFT = 'left'
+    RIGHT = 'right'
+
+
 class SnakeState:
     TURNS = {
-        'up':    (-1, 0),
-        'down':  (1, 0),
-        'left':  (0, -1),
-        'right': (0, 1),
+        TurnEnum.UP:    (-1, 0),
+        TurnEnum.DOWN:  (1, 0),
+        TurnEnum.LEFT:  (0, -1),
+        TurnEnum.RIGHT: (0, 1),
     }
 
     def __init__(self, head_position, start_length, direction):
@@ -28,7 +35,7 @@ class SnakeState:
 class Game:
     def __init__(self, width=20, height=20):
         self.field = Field(width, height)
-        self.snake = SnakeState((1,2), 2, 'right')
+        self.snake = SnakeState((1, 2), 2, 'right')
 
         self.is_paused = True
         self.is_dead = False
