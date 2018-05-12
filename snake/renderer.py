@@ -1,5 +1,15 @@
 from PyQt5.QtGui import QColor
 
+class COLORS:
+    GREY = 0x666666
+    RED = 0xCC6666
+    GREEN = 0x66CC66
+    BLUE = 0x6666CC
+    BROWN = 0xCCCC66
+    PURPLE = 0xCC66CC
+    TURQUOISE = 0x66CCCC
+    YELLOW = 0xDAAA00
+
 
 class Renderer:
     COLOR_TABLE = {
@@ -29,9 +39,9 @@ class Renderer:
         rect = self.painter.window()
         return rect.width() // field.width, rect.height() // field.height
 
-    def draw_square(self, x, y, size, color_index):
+    def draw_square(self, x, y, size, color):
         width, height = size
-        color = QColor(self.COLOR_TABLE[color_index])
+        color = QColor(color)
 
         painter = self.painter
         painter.fillRect(x + 1, y + 1, width - 2,

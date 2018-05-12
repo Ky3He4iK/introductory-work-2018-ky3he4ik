@@ -1,3 +1,6 @@
+from .renderer import COLORS
+
+
 class Cell:
     color = 'black'
 
@@ -9,7 +12,7 @@ class Cell:
 
 
 class SnakeCell(Cell):
-    color = 'green'
+    color = COLORS.GREEN
 
     def __init__(self, time_to_live):
         self.time_to_live = time_to_live
@@ -24,7 +27,7 @@ class SnakeCell(Cell):
 
 
 class FoodCell(Cell):
-    color = 'yellow'
+    color = COLORS.YELLOW
 
     def __init__(self):
         self.is_eaten = False
@@ -40,7 +43,7 @@ class FoodCell(Cell):
 
 
 class DeathWallCell(Cell):
-    color = 'grey'
+    color = COLORS.GREY
 
     def on_bump(self, game):
         game.is_dead = True
