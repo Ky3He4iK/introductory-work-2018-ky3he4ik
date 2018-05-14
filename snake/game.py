@@ -40,7 +40,8 @@ class SnakeState:
         if self.len == len(self.directions):
             self.directions = self.directions[1:] + [self.direction]
         elif self.len > len(self.directions):
-            self.directions = self.directions[1:] + [self.direction for _ in range(self.len - len(self.directions) + 1)]
+            self.directions = [self.directions[0] for _ in range(self.len - len(self.directions))] + \
+                              self.directions[1:] + [self.direction]
         else:
             self.directions = self.directions[len(self.directions) - self.len + 1:] + [self.direction]
         return self.head[0] + dy, self.head[1] + dx
