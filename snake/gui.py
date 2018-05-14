@@ -3,12 +3,12 @@ from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QPainter
 
 from snake.renderer import Renderer
-from snake.game import TurnEnum
+from snake.resourceClasses import TurnEnum
 
 
-# TODO: добавить ЦУП (настройки)
+# TODO: добавить ЦУП (настройки) (MCC)
 class Board(QFrame):
-    UPDATE_INTERVAL = 30  # RUNNING IN THE 90'S
+    UPDATE_INTERVAL = 60  # RUNNING IN THE 90'S
     statusUpdated = pyqtSignal(str)
 
     def __init__(self, game, parent):
@@ -62,10 +62,10 @@ class Board(QFrame):
 
     def update_status(self):
         status = 'Score: {0}'.format(self.game.score)
-        if self.game.is_paused:
-            status = 'PAUSED'
-        elif self.game.is_dead:
+        if self.game.is_dead:
             status = 'GAME OVER. ' + status
+        elif self.game.is_paused:
+            status = 'PAUSED'
         self.statusUpdated.emit(status)
 
 

@@ -1,5 +1,5 @@
 import random
-from .cells import SuicideCell
+from .cells import SuicideCell, PoisonCell, SnakeCell
 
 
 class Field:
@@ -7,6 +7,7 @@ class Field:
         self.width = width
         self.height = height
         self.suicide_pos = -1, -1
+        self.poison_pos = -1, -1
 
         self._cells = [[None for _ in range(width)] for _ in range(height)]
 
@@ -28,11 +29,17 @@ class Field:
     def get_chance(threshold):
         return random.random() < threshold
 
-    def change_suicide_cell(self,):
+    def change_suicide_cell(self):
         if self.suicide_pos != (-1, -1):
             self.set_cell(*self.suicide_pos, None)
         self.suicide_pos = self.get_random_empty_cell()
         self.set_cell(*self.suicide_pos, SuicideCell())
+
+    def change_poison_cell(self):
+        if self.poison_pos != (-1, -1):
+            self.set_cell(*self.poison_pos, None)
+        self.poison_pos = self.get_random_empty_cell()
+        self.set_cell(*self.poison_pos, PoisonCell())
 
     def set_cell(self, y, x, cell):
         if not self.contains_cell(y, x):
@@ -47,9 +54,29 @@ class Field:
     def update(self, game):
         if self.get_chance(0.01):
             self.change_suicide_cell()
+        if self.get_chance(0.01):
+            self.change_poison_cell()
 
         for y in range(self.height):
             for x in range(self.width):
                 cell = self._cells[y][x]
                 if cell is not None:
                     self._cells[y][x] = cell.update(game)
+
+    def reverse_snake(self, snake_length):
+        tail_pos = -1, -1
+        pre_tail_pos = -1, -1
+
+        for y in range(self.height):
+            for x in range(self.width):
+                cell = self._cells[y][x]
+                if type(cell) is SnakeCell:
+                    if tail_pos == (-1, -1) and cell.time_to_live == 1:
+                        tail_pos = y, x
+                    if pre_tail_pos == (-1, -1) and cell.time_to_live == 2:
+                        pre_tail_pos = y, x
+                    print("{0} to {1} at {2}".format(cell.time_to_live, snake_length - cell.time_to_live + 1, (y, x)))
+                    self._cells[y][x].time_to_live = snake_length - cell.time_to_live + 1
+
+        direction = tail_pos[0] - pre_tail_pos[0], tail_pos[1] - pre_tail_pos[1]
+        return tail_pos, direction
