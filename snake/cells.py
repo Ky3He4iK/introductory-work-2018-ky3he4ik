@@ -1,5 +1,4 @@
 from .renderer import COLORS
-from .resourceClasses import TurnEnum
 
 
 class Cell:

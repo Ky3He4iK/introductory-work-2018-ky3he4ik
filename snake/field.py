@@ -1,5 +1,5 @@
 import random
-from .cells import SuicideCell, PoisonCell, SnakeCell
+from .cells import SuicideCell, PoisonCell, SnakeCell, FoodCell
 from .resourceClasses import TurnEnum
 
 
@@ -9,6 +9,7 @@ class Field:
         self.height = height
         self.suicide_pos = -1, -1
         self.poison_pos = -1, -1
+        self.food_pos = -1, -1
 
         self._cells = [[None for _ in range(width)] for _ in range(height)]
 
@@ -30,17 +31,21 @@ class Field:
     def get_chance(threshold):
         return random.random() < threshold
 
+    def change_cell(self, old_pos, new_cell):
+        if old_pos != (-1, -1):
+            self.set_cell(*old_pos, None)
+        new_pos = self.get_random_empty_cell()
+        self.set_cell(*new_pos, new_cell)
+        return new_pos
+
     def change_suicide_cell(self):
-        if self.suicide_pos != (-1, -1):
-            self.set_cell(*self.suicide_pos, None)
-        self.suicide_pos = self.get_random_empty_cell()
-        self.set_cell(*self.suicide_pos, SuicideCell())
+        self.suicide_pos = self.change_cell(self.suicide_pos, SuicideCell())
 
     def change_poison_cell(self):
-        if self.poison_pos != (-1, -1):
-            self.set_cell(*self.poison_pos, None)
-        self.poison_pos = self.get_random_empty_cell()
-        self.set_cell(*self.poison_pos, PoisonCell())
+        self.poison_pos = self.change_cell(self.poison_pos, PoisonCell())
+
+    def change_food_cell(self):
+        self.food_pos = self.change_cell(self.food_pos, FoodCell())
 
     def set_cell(self, y, x, cell):
         if not self.contains_cell(y, x):
@@ -55,8 +60,10 @@ class Field:
     def update(self, game, directions):
         if self.get_chance(0.01):
             self.change_suicide_cell()
-        if self.get_chance(0.01):
+        if self.get_chance(0.001):
             self.change_poison_cell()
+        if self.get_chance(0.001):
+            self.change_food_cell()
 
         for y in range(self.height):
             for x in range(self.width):

@@ -1,7 +1,7 @@
 import queue
 
 from .field import Field
-from .cells import SnakeCell, FoodCell, DeathWallCell
+from .cells import SnakeCell, DeathWallCell
 from .resourceClasses import TurnEnum
 
 
@@ -72,10 +72,10 @@ class Game:
         self.spawn_food()
         self.spawn_poison_food()
         self.spawn_suicide_food()
+        self.spawn_food()
 
     def spawn_food(self):
-        y, x = self.field.get_random_empty_cell()
-        self.field.set_cell(y, x, FoodCell())
+        self.field.change_food_cell()
 
     def spawn_poison_food(self):
         self.field.change_poison_cell()
