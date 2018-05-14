@@ -1,5 +1,6 @@
 import random
 from .cells import SuicideCell, PoisonCell, SnakeCell
+from .resourceClasses import TurnEnum
 
 
 class Field:
@@ -51,7 +52,7 @@ class Field:
             raise ValueError('Cell ({0}, {1}) is outside of field'.format(y, x))
         return self._cells[y][x]
 
-    def update(self, game):
+    def update(self, game, directions):
         if self.get_chance(0.01):
             self.change_suicide_cell()
         if self.get_chance(0.01):
@@ -61,7 +62,7 @@ class Field:
             for x in range(self.width):
                 cell = self._cells[y][x]
                 if cell is not None:
-                    self._cells[y][x] = cell.update(game)
+                    self._cells[y][x] = cell.update(game, directions)
 
     def reverse_snake(self, snake_length):
         tail_pos = -1, -1
@@ -75,8 +76,16 @@ class Field:
                         tail_pos = y, x
                     if pre_tail_pos == (-1, -1) and cell.time_to_live == 2:
                         pre_tail_pos = y, x
-                    print("{0} to {1} at {2}".format(cell.time_to_live, snake_length - cell.time_to_live + 1, (y, x)))
+                    # print("{0} to {1} at {2}".format(cell.time_to_live, snake_length - cell.time_to_live + 1, (y, x)))
                     self._cells[y][x].time_to_live = snake_length - cell.time_to_live + 1
+                    if self._cells[y][x].direction == TurnEnum.RIGHT:
+                        self._cells[y][x].direction = TurnEnum.LEFT
+                    elif self._cells[y][x].direction == TurnEnum.LEFT:
+                        self._cells[y][x].direction = TurnEnum.RIGHT
+                    elif self._cells[y][x].direction == TurnEnum.UP:
+                        self._cells[y][x].direction = TurnEnum.DOWN
+                    elif self._cells[y][x].direction == TurnEnum.DOWN:
+                        self._cells[y][x].direction = TurnEnum.UP
 
         direction = tail_pos[0] - pre_tail_pos[0], tail_pos[1] - pre_tail_pos[1]
         return tail_pos, direction
