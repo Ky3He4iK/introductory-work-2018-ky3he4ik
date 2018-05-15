@@ -1,5 +1,6 @@
 from PyQt5.QtGui import QColor
 
+
 class Renderer:
     def __init__(self, painter):
         self.painter = painter

@@ -1,6 +1,5 @@
 import random
-from .cells import SuicideCell, PoisonCell, SnakeCell, FoodCell
-from .resourceClasses import COLORS
+from .cells import SuicideCell, PoisonCell, FoodCell
 
 
 class Field:
@@ -57,30 +56,19 @@ class Field:
             raise ValueError('Cell ({0}, {1}) is outside of field'.format(y, x))
         return self._cells[y][x]
 
-    def update(self, game, directions):
-        if self.get_chance(0.01):
+    def update(self, game):
+        if self.get_chance(0.001):
             self.change_suicide_cell()
-        if self.get_chance(0.001):
+        if self.get_chance(0.0001):
             self.change_poison_cell()
-        if self.get_chance(0.001):
+        if self.get_chance(0.0001):
             self.change_food_cell()
-
-        found = [False for _ in range(game.snake.len + 2)]
 
         for y in range(self.height):
             for x in range(self.width):
                 cell = self._cells[y][x]
                 if cell is not None:
-                    self._cells[y][x] = cell.update(game, directions)
-                    if type(cell) is SnakeCell and cell.time_to_live > 0:
-                        if cell.time_to_live > game.snake.len:
-                            raise ValueError("A snake cell with ttl = {0} at ({1}, {2})".format(str(cell.time_to_live),
-                                                                                                str(y), str(x)))
-                        found[cell.time_to_live - 1] = True
-                        if cell.time_to_live == game.snake.len:
-                            cell.color = COLORS.LIGHT_GREEN
-                        else:
-                            cell.color = COLORS.GREEN
-        # for i in range(game.snake.len):
-        #     if not found[i] and i < game.snake.len:
-        #         raise ValueError("I haven't snake cell with ttl = {0}".format(str(i + 1)))
+                    self._cells[y][x] = cell.update(game)
+
+    def get_field_square(self):
+        return len(self._cells) * len(self._cells[0])

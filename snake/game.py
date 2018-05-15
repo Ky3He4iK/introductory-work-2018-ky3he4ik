@@ -58,6 +58,7 @@ class Game:
         self.is_paused = True
         self.is_dead = False
         self.score = 0
+        self.is_won = False
 
         self.init_level(DeathWallCell)
 
@@ -116,20 +117,20 @@ class Game:
         if cell is not None:
             cell.on_bump(self)
 
-        # self.field.set_cell(*self.snake.head, )
-        SnakeCell(time_to_live=self.snake.len)
+        self.field.set_cell(*self.snake.head, SnakeCell(time_to_live=self.snake.len))
         # Костыль. Зато обновление длины змейки происходит на клетке с едой
 
         if self.is_dead:
+            if self.snake.len >= self.field.get_field_square() - 1:
+                self.is_won = True
             return
 
-        self.field.update(game=self, directions=self.snake.directions)
+        self.field.update(game=self)
 
         self.field.set_cell(*self.snake.head, SnakeCell(time_to_live=self.snake.len))
 
     def try_move_head(self):
         new_y, new_x = self.snake.get_next_position()
-
         if self.field.contains_cell(new_y, new_x):
             self.snake.head = new_y, new_x
             return True
