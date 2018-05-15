@@ -118,7 +118,7 @@ class Game:
             cell.on_bump(self)
 
         self.field.set_cell(*self.snake.head, SnakeCell(time_to_live=self.snake.len))
-        # Костыль. Зато обновление длины змейки происходит на клетке с едой
+        # Костыль. Зато обновление длины змейки происходит на клетке с едой, а не на следующей
 
         if self.is_dead:
             if self.snake.len >= self.field.get_field_square() - 1:
