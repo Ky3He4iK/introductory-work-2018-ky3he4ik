@@ -8,7 +8,7 @@ from snake.resourceClasses import TurnEnum
 
 # TODO: добавить ЦУП (настройки) (MCC)
 class Board(QFrame):
-    UPDATE_INTERVAL = 60  # RUNNING IN THE 90'S
+    UPDATE_INTERVAL = 300  # RUNNING IN THE 90'S
     statusUpdated = pyqtSignal(str)
 
     def __init__(self, game, parent):

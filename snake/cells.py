@@ -1,4 +1,5 @@
 from .renderer import COLORS
+from .resourceClasses import TurnEnum
 
 
 class Cell:
@@ -24,6 +25,7 @@ class SnakeCell(Cell):
             return
         if self.time_to_live == 1:
             return None
+        directions[self.time_to_live - 1] = self.direction
         return SnakeCell(self.time_to_live - 1, directions[self.time_to_live - 1])
 
     def on_bump(self, game):
@@ -67,7 +69,6 @@ class SuicideCell(Cell):
 
     def on_bump(self, game):
         game.is_dead = True
-        return
 
     def update(self, game, directions):
         return self
@@ -78,3 +79,10 @@ class DeathWallCell(Cell):
 
     def on_bump(self, game):
         game.is_dead = True
+
+
+class ReverseWallCell(Cell):
+    color = COLORS.BROWN
+
+    def on_bump(self, game):
+        game.reverse_snake(TurnEnum.get_reversed(game.snake.direction))

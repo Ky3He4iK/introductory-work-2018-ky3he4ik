@@ -10,6 +10,7 @@ class COLORS:
     PURPLE = 0xCC66CC
     TURQUOISE = 0x66CCCC
     YELLOW = 0xDAAA00
+    LIGHT_GREEN = 0x5CFF5C
 
 
 class Renderer:

@@ -1,6 +1,6 @@
 import random
 from .cells import SuicideCell, PoisonCell, SnakeCell, FoodCell
-from .resourceClasses import TurnEnum
+from .resourceClasses import TurnEnum, COLORS
 
 
 class Field:
@@ -65,11 +65,40 @@ class Field:
         if self.get_chance(0.001):
             self.change_food_cell()
 
+        found = [False for _ in range(game.snake.len + 2)]
+
         for y in range(self.height):
             for x in range(self.width):
                 cell = self._cells[y][x]
                 if cell is not None:
                     self._cells[y][x] = cell.update(game, directions)
+                    if type(cell) is SnakeCell and cell.time_to_live > 0:
+                        if cell.time_to_live > game.snake.len:
+                            raise ValueError("A snake cell with ttl = {0} at ({1}, {2})".format(str(cell.time_to_live),
+                                                                                                str(y), str(x)))
+                        found[cell.time_to_live - 1] = True
+                        if cell.time_to_live == game.snake.len:
+                            cell.color = COLORS.LIGHT_GREEN
+                        else:
+                            cell.color = COLORS.GREEN
+        # for i in range(game.snake.len):
+        #     if not found[i] and i < game.snake.len:
+        #         raise ValueError("I haven't snake cell with ttl = {0}".format(str(i + 1)))
+
+    def find_snake_end(self, snake_len):
+        tail_pos = -1, -1
+        pre_tail_pos = -1, -1
+
+        for y in range(self.height):
+            for x in range(self.width):
+                cell = self._cells[y][x]
+                if type(cell) is SnakeCell:
+                    if tail_pos == (-1, -1) and cell.time_to_live == snake_len:
+                        tail_pos = y, x
+                    if pre_tail_pos == (-1, -1) and cell.time_to_live == snake_len - 1:
+                        pre_tail_pos = y, x
+                    # print("{0} to {1} at {2}".format(cell.time_to_live, snake_length - cell.time_to_live + 1, (y, x)))
+        return tail_pos, pre_tail_pos
 
     def reverse_snake(self, snake_length):
         tail_pos = -1, -1
@@ -83,16 +112,15 @@ class Field:
                         tail_pos = y, x
                     if pre_tail_pos == (-1, -1) and cell.time_to_live == 2:
                         pre_tail_pos = y, x
-                    # print("{0} to {1} at {2}".format(cell.time_to_live, snake_length - cell.time_to_live + 1, (y, x)))
+                    print("{0} to {1} at {2}".format(cell.time_to_live, snake_length - cell.time_to_live + 1, (y, x)))
                     self._cells[y][x].time_to_live = snake_length - cell.time_to_live + 1
-                    if self._cells[y][x].direction == TurnEnum.RIGHT:
-                        self._cells[y][x].direction = TurnEnum.LEFT
-                    elif self._cells[y][x].direction == TurnEnum.LEFT:
-                        self._cells[y][x].direction = TurnEnum.RIGHT
-                    elif self._cells[y][x].direction == TurnEnum.UP:
-                        self._cells[y][x].direction = TurnEnum.DOWN
-                    elif self._cells[y][x].direction == TurnEnum.DOWN:
-                        self._cells[y][x].direction = TurnEnum.UP
+                    self._cells[y][x].direction = TurnEnum.get_reversed(self._cells[y][x].direction)
 
-        direction = tail_pos[0] - pre_tail_pos[0], tail_pos[1] - pre_tail_pos[1]
-        return tail_pos, direction
+        if tail_pos == (-1, -1) or pre_tail_pos == (-1, -1):
+            tail_pos, pre_tail_pos = self.find_snake_end(snake_length)
+        direction_y, direction_x = tail_pos[0] - pre_tail_pos[0], tail_pos[1] - pre_tail_pos[1]
+        print(direction_y, direction_x, tail_pos, pre_tail_pos)
+        direction_y = max(min(direction_y, 1), -1)  # normalize
+        direction_x = max(min(direction_x, 1), -1)
+
+        return tail_pos, (direction_y, direction_x)

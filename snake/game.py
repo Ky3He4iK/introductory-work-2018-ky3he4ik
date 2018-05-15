@@ -1,8 +1,6 @@
-import queue
-
 from .field import Field
-from .cells import SnakeCell, DeathWallCell
-from .resourceClasses import TurnEnum
+from .cells import SnakeCell, ReverseWallCell, DeathWallCell
+from .resourceClasses import TurnEnum, COLORS
 
 
 class SnakeState:
@@ -17,11 +15,12 @@ class SnakeState:
         self.head = head_position
         self.len = start_length
         self.direction = direction
+        self.real_direction = self.direction
         self.directions = [direction for _ in range(self.len)]
 
     def turn(self, direction):
         if direction not in self.TURNS.keys():
-            raise ValueError('{0} is not a valid side' % direction)
+            raise ValueError('{0} is not a valid side'.format(str(direction)))
         self.direction = direction
 
     @staticmethod
@@ -29,10 +28,14 @@ class SnakeState:
         for t in SnakeState.TURNS:
             if turn == SnakeState.TURNS[t]:
                 return t
+        print("Unknown direction: {0}".format(str(turn)))
 
     def is_reverse(self, direction):
-        return self.len > 1 and self.TURNS[self.direction][0] == -self.TURNS[direction][0] and \
-               self.TURNS[self.direction][1] == -self.TURNS[direction][1]
+        return self.len > 1 and self.TURNS[self.real_direction][0] == -self.TURNS[direction][0] and \
+               self.TURNS[self.real_direction][1] == -self.TURNS[direction][1]
+
+    def get_next_head(self):
+        return self.head[0] + self.TURNS[self.direction][0], self.head[1] + self.TURNS[self.direction][1]
 
     def get_next_position(self):
         dy, dx = self.TURNS[self.direction]
@@ -56,19 +59,20 @@ class Game:
         self.is_dead = False
         self.score = 0
 
-        self.init_level()
+        self.init_level(ReverseWallCell)
 
-    def init_level(self):
+    def init_level(self, WallCell):
         self.field.set_cell(1, 1, SnakeCell(time_to_live=1, direction=TurnEnum.RIGHT))
         self.field.set_cell(1, 2, SnakeCell(time_to_live=2, direction=TurnEnum.RIGHT))
+        self.field.get_cell(1, 2).color = COLORS.LIGHT_GREEN
 
         for x in range(self.field.width):
-            self.field.set_cell(0, x, DeathWallCell())
-            self.field.set_cell(self.field.width - 1, x, DeathWallCell())
+            self.field.set_cell(0, x, WallCell())
+            self.field.set_cell(self.field.width - 1, x, WallCell())
 
         for y in range(self.field.height):
-            self.field.set_cell(y, 0, DeathWallCell())
-            self.field.set_cell(y, self.field.height - 1, DeathWallCell())
+            self.field.set_cell(y, 0, WallCell())
+            self.field.set_cell(y, self.field.height - 1, WallCell())
 
         self.spawn_food()
         self.spawn_poison_food()
@@ -95,6 +99,13 @@ class Game:
 
     def update(self):
         if self.is_paused or self.is_dead:
+            return
+
+        self.snake.real_direction = self.snake.direction
+
+        cell_next = self.field.get_cell(*self.snake.get_next_head())
+        if type(cell_next) is DeathWallCell or type(cell_next) is ReverseWallCell:
+            cell_next.on_bump(self)
             return
 
         if not self.try_move_head():
@@ -132,6 +143,7 @@ class Game:
 
     def reverse_snake(self, direction):
         res = self.field.reverse_snake(self.snake.len)
+        print(res)
         self.snake.turn(SnakeState.get_turn(res[1]))
         self.snake.head = res[0]
         # print(direction)
