@@ -1,6 +1,6 @@
 from .field import Field
-from .cells import SnakeCell, ReverseWallCell, DeathWallCell
-from .resourceClasses import TurnEnum, COLORS
+from .cells import SnakeCell, DeathWallCell
+from .resourceClasses import TurnEnum
 
 
 class SnakeState:
@@ -59,12 +59,12 @@ class Game:
         self.is_dead = False
         self.score = 0
 
-        self.init_level(ReverseWallCell)
+        self.init_level(DeathWallCell)
 
     def init_level(self, WallCell):
-        self.field.set_cell(1, 1, SnakeCell(time_to_live=1, direction=TurnEnum.RIGHT))
-        self.field.set_cell(1, 2, SnakeCell(time_to_live=2, direction=TurnEnum.RIGHT))
-        self.field.get_cell(1, 2).color = COLORS.LIGHT_GREEN
+        self.field.set_cell(1, 1, SnakeCell(time_to_live=1))
+        self.field.set_cell(1, 2, SnakeCell(time_to_live=2))
+        # self.field.get_cell(1, 2).color = COLORS.LIGHT_GREEN
 
         for x in range(self.field.width):
             self.field.set_cell(0, x, WallCell())
@@ -93,7 +93,7 @@ class Game:
 
     def turn(self, side):
         if self.snake.is_reverse(side):
-            self.reverse_snake(side)
+            pass
         else:
             self.snake.turn(side)
 
@@ -104,7 +104,7 @@ class Game:
         self.snake.real_direction = self.snake.direction
 
         cell_next = self.field.get_cell(*self.snake.get_next_head())
-        if type(cell_next) is DeathWallCell or type(cell_next) is ReverseWallCell:
+        if type(cell_next) is DeathWallCell:
             cell_next.on_bump(self)
             return
 
@@ -117,7 +117,7 @@ class Game:
             cell.on_bump(self)
 
         # self.field.set_cell(*self.snake.head, )
-        SnakeCell(time_to_live=self.snake.len, direction=self.snake.direction)
+        SnakeCell(time_to_live=self.snake.len)
         # Костыль. Зато обновление длины змейки происходит на клетке с едой
 
         if self.is_dead:
@@ -125,7 +125,7 @@ class Game:
 
         self.field.update(game=self, directions=self.snake.directions)
 
-        self.field.set_cell(*self.snake.head, SnakeCell(time_to_live=self.snake.len, direction=self.snake.direction))
+        self.field.set_cell(*self.snake.head, SnakeCell(time_to_live=self.snake.len))
 
     def try_move_head(self):
         new_y, new_x = self.snake.get_next_position()
@@ -140,11 +140,3 @@ class Game:
 
     def get_direction(self, dy, dx):
         pass
-
-    def reverse_snake(self, direction):
-        res = self.field.reverse_snake(self.snake.len)
-        print(res)
-        self.snake.turn(SnakeState.get_turn(res[1]))
-        self.snake.head = res[0]
-        # print(direction)
-        print("Reversed. current direction is {0}. Head at {1}".format(str(direction), str(self.snake.head)))

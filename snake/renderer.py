@@ -1,18 +1,5 @@
 from PyQt5.QtGui import QColor
 
-
-class COLORS:
-    GREY = 0x666666
-    RED = 0xCC6666
-    GREEN = 0x66CC66
-    BLUE = 0x6666CC
-    BROWN = 0xCCCC66
-    PURPLE = 0xCC66CC
-    TURQUOISE = 0x66CCCC
-    YELLOW = 0xDAAA00
-    LIGHT_GREEN = 0x5CFF5C
-
-
 class Renderer:
     def __init__(self, painter):
         self.painter = painter
