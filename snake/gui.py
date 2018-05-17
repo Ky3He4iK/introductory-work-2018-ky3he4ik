@@ -87,7 +87,7 @@ class SnakeWindow(QMainWindow):
         self.board.statusUpdated[str].connect(self.status_bar.showMessage)
 
         self.setWindowTitle('Snake')
-        self.resize(600, 600)
+        self.resize(self.board.game.field.width * 20, self.board.game.field.height * 20)
         self.center()
         self.show()
 

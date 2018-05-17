@@ -42,9 +42,9 @@ class SnakeState:
 
 
 class Game:
-    def __init__(self, width=20, height=20, WallType=DeathWallCell):
-        self.wall = WallType
-        self.field = Field(width, height, WallType)
+    def __init__(self, width=20, height=20, wall=DeathWallCell):
+        self.wall = wall
+        self.field = Field(width, height, wall)
         self.snake = SnakeState((1, 2), 2, TurnEnum.RIGHT)
 
         self.is_paused = True
@@ -52,22 +52,20 @@ class Game:
         self.score = 0
         self.is_won = False
 
-        self.init_level(WallType)
+        self.init_level()
 
-    def init_level(self, WallCell):
+    def init_level(self):
         self.field.set_cell(1, 1, SnakeCell(time_to_live=1))
         self.field.set_cell(1, 2, SnakeCell(time_to_live=2))
         # self.field.get_cell(1, 2).color = COLORS.LIGHT_GREEN
 
         for x in range(self.field.width):
-            cell = WallCell(self, 0, x)
-            self.field.set_cell(0, x, cell)
-            cell = WallCell(self, self.field.width - 1, x)
-            self.field.set_cell(self.field.width - 1, x, cell)
+            self.field.set_cell(0, x, self.wall(self, 0, x))
+            self.field.set_cell(self.field.height - 1, x, self.wall(self, self.field.height - 1, x))
 
         for y in range(self.field.height):
-            self.field.set_cell(y, 0, WallCell(self, y, 0))
-            self.field.set_cell(y, self.field.height - 1, WallCell(self, y, self.field.height - 1))
+            self.field.set_cell(y, 0, self.wall(self, y, 0))
+            self.field.set_cell(y, self.field.width - 1, self.wall(self, y, self.field.width - 1))
 
         self.spawn_food()
         self.spawn_poison_food()

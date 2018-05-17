@@ -3,14 +3,14 @@ from .cells import SuicideCell, PoisonCell, FoodCell, DeathWallCell
 
 
 class Field:
-    def __init__(self,  width=20, height=20, WallType=DeathWallCell):
+    def __init__(self, width=20, height=20, wall=DeathWallCell):
         self.width = width
         self.height = height
         self.suicide_pos = -1, -1
         self.poison_pos = -1, -1
         self.food_pos = -1, -1
         self._cells = [[None for _ in range(width)] for _ in range(height)]
-        self.default_cell = WallType
+        self.default_cell = wall
 
     def contains_cell(self, y, x):
         return (0 <= y < self.height) and (0 <= x < self.width)
@@ -57,18 +57,25 @@ class Field:
         return self._cells[y][x]
 
     def update(self, game):
-        if self.get_chance(0.001):
-            self.change_suicide_cell()
-        if self.get_chance(0.0001):
-            self.change_poison_cell()
-        if self.get_chance(0.0001):
-            self.change_food_cell()
-
+        suicide_pos, poison_pos, food_pos = [None] * 3
         for y in range(self.height):
             for x in range(self.width):
                 cell = self._cells[y][x]
                 if cell is not None:
                     self._cells[y][x] = cell.update(game)
+                if type(self._cells[y][x]) is SuicideCell:
+                    suicide_pos = (y, x)
+                elif type(self._cells[y][x]) is PoisonCell:
+                    poison_pos = (y, x)
+                elif type(self._cells[y][x]) is FoodCell:
+                    food_pos = (y, x)
+
+        if self.get_chance(0.001) or suicide_pos is None:
+            self.change_suicide_cell()
+        if self.get_chance(0.0001) or poison_pos is None:
+            self.change_poison_cell()
+        if self.get_chance(0.0001) or food_pos is None:
+            self.change_food_cell()
 
     def get_field_square(self):
         return len(self._cells) * len(self._cells[0])

@@ -10,5 +10,5 @@ from snake.cells import PortalWallCell
 
 if __name__ == '__main__':
     app = QApplication([])
-    snake = SnakeWindow(Game(30, 30, PortalWallCell))
+    snake = SnakeWindow(Game(20, 30, PortalWallCell))
     sys.exit(app.exec_())

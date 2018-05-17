@@ -26,7 +26,8 @@ class SnakeCell(Cell):
         return SnakeCell(self.time_to_live - 1)
 
     def on_bump(self, game):
-        game.is_dead = True
+        if self.time_to_live > 1:
+            game.is_dead = True
 
 
 class FoodCell(Cell):
@@ -39,7 +40,7 @@ class FoodCell(Cell):
         self.is_eaten = True
         game.snake.len += 1
         game.score += 1
-        game.spawn_food()
+        game.field.change_food_cell()
 
     def update(self, game):
         return None if self.is_eaten else self
@@ -93,7 +94,7 @@ class PortalWallCell(Cell):
         elif y == game.field.height - 1:
             self.to = (1, x)
         else:
-            pass
+            self.to = (y, x)
         pass
 
     def on_bump(self, game):
