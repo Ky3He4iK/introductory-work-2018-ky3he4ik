@@ -52,10 +52,10 @@ class PoisonCell(Cell):
         self.is_eaten = False
 
     def on_bump(self, game):
-        pass
-        # self.is_eaten = True
-        # game.snake.len -= 1
-        # game.score -= 2
+        # pass
+        self.is_eaten = True
+        game.snake.len -= 1
+        game.score -= 2
         game.spawn_poison_food()
 
     def update(self, game):
@@ -66,8 +66,8 @@ class SuicideCell(Cell):
     color = COLORS.RED
 
     def on_bump(self, game):
-        pass
-        # game.is_dead = True
+        # pass
+        game.is_dead = True
 
     def update(self, game):
         return self
@@ -78,3 +78,23 @@ class DeathWallCell(Cell):
 
     def on_bump(self, game):
         game.is_dead = True
+
+
+class PortalWallCell(Cell):
+    color = COLORS.PURPLE
+
+    def __init__(self, game, y, x):
+        if x == 0:
+            self.to = (y, game.field.width - 2)
+        elif y == 0:
+            self.to = (game.field.height - 2, x)
+        elif x == game.field.width - 1:
+            self.to = (y, 1)
+        elif y == game.field.height - 1:
+            self.to = (1, x)
+        else:
+            pass
+        pass
+
+    def on_bump(self, game):
+        game.snake.head = self.to

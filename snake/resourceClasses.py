@@ -15,6 +15,7 @@ class TurnEnum:
         elif direction == TurnEnum.DOWN:
             return TurnEnum.UP
 
+
 class COLORS:
     GREY = 0x666666
     RED = 0xCC6666
@@ -25,3 +26,4 @@ class COLORS:
     TURQUOISE = 0x66CCCC
     YELLOW = 0xDAAA00
     LIGHT_GREEN = 0x5CFF5C
+    WHITE = 0xFFFFFF

@@ -16,7 +16,6 @@ class SnakeState:
         self.len = start_length
         self.direction = direction
         self.real_direction = self.direction
-        self.directions = [direction for _ in range(self.len)]
 
     def turn(self, direction):
         if direction not in self.TURNS.keys():
@@ -39,20 +38,13 @@ class SnakeState:
 
     def get_next_position(self):
         dy, dx = self.TURNS[self.direction]
-        # print(dy, dx)
-        if self.len == len(self.directions):
-            self.directions = self.directions[1:] + [self.direction]
-        elif self.len > len(self.directions):
-            self.directions = [self.directions[0] for _ in range(self.len - len(self.directions))] + \
-                              self.directions[1:] + [self.direction]
-        else:
-            self.directions = self.directions[len(self.directions) - self.len + 1:] + [self.direction]
         return self.head[0] + dy, self.head[1] + dx
 
 
 class Game:
-    def __init__(self, width=20, height=20):
-        self.field = Field(width, height)
+    def __init__(self, width=20, height=20, WallType=DeathWallCell):
+        self.wall = WallType
+        self.field = Field(width, height, WallType)
         self.snake = SnakeState((1, 2), 2, TurnEnum.RIGHT)
 
         self.is_paused = True
@@ -60,7 +52,7 @@ class Game:
         self.score = 0
         self.is_won = False
 
-        self.init_level(DeathWallCell)
+        self.init_level(WallType)
 
     def init_level(self, WallCell):
         self.field.set_cell(1, 1, SnakeCell(time_to_live=1))
@@ -68,12 +60,14 @@ class Game:
         # self.field.get_cell(1, 2).color = COLORS.LIGHT_GREEN
 
         for x in range(self.field.width):
-            self.field.set_cell(0, x, WallCell())
-            self.field.set_cell(self.field.width - 1, x, WallCell())
+            cell = WallCell(self, 0, x)
+            self.field.set_cell(0, x, cell)
+            cell = WallCell(self, self.field.width - 1, x)
+            self.field.set_cell(self.field.width - 1, x, cell)
 
         for y in range(self.field.height):
-            self.field.set_cell(y, 0, WallCell())
-            self.field.set_cell(y, self.field.height - 1, WallCell())
+            self.field.set_cell(y, 0, WallCell(self, y, 0))
+            self.field.set_cell(y, self.field.height - 1, WallCell(self, y, self.field.height - 1))
 
         self.spawn_food()
         self.spawn_poison_food()
@@ -137,7 +131,7 @@ class Game:
         return False
 
     def restart(self):
-        self.__init__(self.field.width, self.field.height)
+        self.__init__(self.field.width, self.field.height, self.wall)
 
     def get_direction(self, dy, dx):
         pass

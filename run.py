@@ -6,8 +6,9 @@ from PyQt5.QtWidgets import QApplication
 
 from snake.game import Game
 from snake.gui import SnakeWindow
+from snake.cells import PortalWallCell
 
 if __name__ == '__main__':
     app = QApplication([])
-    snake = SnakeWindow(Game(30, 30))
+    snake = SnakeWindow(Game(30, 30, PortalWallCell))
     sys.exit(app.exec_())
