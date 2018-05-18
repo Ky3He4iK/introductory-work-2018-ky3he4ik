@@ -1,16 +1,16 @@
 import random
-from .cells import SuicideCell, PoisonCell, FoodCell, DeathWallCell
+from .cells import SuicideCell, PoisonCell, FoodCell
 
 
 class Field:
-    def __init__(self, width=20, height=20, wall=DeathWallCell):
-        self.width = width
-        self.height = height
+    def __init__(self, settings):
+        self.width = settings.width
+        self.height = settings.height
         self.suicide_pos = -1, -1
         self.poison_pos = -1, -1
         self.food_pos = -1, -1
-        self._cells = [[None for _ in range(width)] for _ in range(height)]
-        self.default_cell = wall
+        self._cells = [[None for _ in range(self.width)] for _ in range(self.height)]
+        self.default_cell = settings.wall
 
     def contains_cell(self, y, x):
         return (0 <= y < self.height) and (0 <= x < self.width)

@@ -1,6 +1,7 @@
 from .field import Field
 from .cells import SnakeCell, DeathWallCell
 from .resourceClasses import TurnEnum
+from .Settings import Settings
 
 
 class SnakeState:
@@ -42,9 +43,9 @@ class SnakeState:
 
 
 class Game:
-    def __init__(self, width=20, height=20, wall=DeathWallCell):
-        self.wall = wall
-        self.field = Field(width, height, wall)
+    def __init__(self, settings):
+        self.wall = settings.wall
+        self.field = Field(settings)
         self.snake = SnakeState((1, 2), 2, TurnEnum.RIGHT)
 
         self.is_paused = True
@@ -128,8 +129,10 @@ class Game:
             return True
         return False
 
-    def restart(self):
-        self.__init__(self.field.width, self.field.height, self.wall)
+    def restart(self, settings=None):
+        if settings is None:
+            settings = Settings(width=self.field.width, height=self.field.height, wall=self.wall)
+        self.__init__(settings)
 
     def get_direction(self, dy, dx):
         pass

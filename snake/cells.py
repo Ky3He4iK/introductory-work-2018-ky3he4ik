@@ -74,17 +74,25 @@ class SuicideCell(Cell):
         return self
 
 
-class DeathWallCell(Cell):
+class Wall(Cell):
+    color = COLORS.TURQUOISE
+
+    def __init__(self, game, y, x):
+        pass
+
+
+class DeathWallCell(Wall):
     color = COLORS.GREY
 
     def on_bump(self, game):
         game.is_dead = True
 
 
-class PortalWallCell(Cell):
+class PortalWallCell(Wall):
     color = COLORS.PURPLE
 
     def __init__(self, game, y, x):
+        super().__init__(game, y, x)
         if x == 0:
             self.to = (y, game.field.width - 2)
         elif y == 0:
@@ -95,7 +103,6 @@ class PortalWallCell(Cell):
             self.to = (1, x)
         else:
             self.to = (y, x)
-        pass
 
     def on_bump(self, game):
         game.snake.head = self.to

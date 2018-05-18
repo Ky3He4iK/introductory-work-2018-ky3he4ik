@@ -5,10 +5,14 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 from snake.game import Game
-from snake.gui import SnakeWindow
+from snake.gui import SnakeWindow, MCCWindow
 from snake.cells import PortalWallCell
+from snake.Settings import Settings
 
 if __name__ == '__main__':
     app = QApplication([])
-    snake = SnakeWindow(Game(20, 30, PortalWallCell))
+
+    mcc = MCCWindow()
+    snake = SnakeWindow(Game(Settings(width=30, height=20, wall=PortalWallCell)), mcc)
+    mcc.set(snake, snake.board.game.restart)
     sys.exit(app.exec_())
