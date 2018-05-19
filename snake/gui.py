@@ -13,10 +13,10 @@ class Board(QFrame):
     UPDATE_INTERVAL = 100  # RUNNING IN THE 90'S
     statusUpdated = pyqtSignal(str)
 
-    def __init__(self, game, parent):
+    def __init__(self, settings, parent):
         super().__init__(parent)
-
-        self.game = game
+        self.UPDATE_INTERVAL = settings.game_speed
+        self.game = Game(settings)
 
         self.timer = QBasicTimer()
         self.timer.start(self.UPDATE_INTERVAL, self)
@@ -59,6 +59,9 @@ class Board(QFrame):
             self.game.turn(TurnEnum.DOWN)
         elif key == Qt.Key_Up or key == Qt.Key_W:
             self.game.turn(TurnEnum.UP)
+        elif event.key() == Qt.Key_F4 and (event.modifiers() & Qt.AltModifier):
+            print("key close")
+            self.close()
         else:
             super().keyPressEvent(event)
 
@@ -72,15 +75,21 @@ class Board(QFrame):
             status = 'PAUSED'
         self.statusUpdated.emit(status)
 
+    def close(self):
+        print("closed")
+        self.parent().close()
+        super().close()
+
 
 class SnakeWindow(QMainWindow):
     game_settings = pyqtSignal(Settings)
 
-    def __init__(self, game, mcc):
+    def __init__(self, settings, mcc):
         super().__init__()
 
-        self.board = Board(game, self)
+        self.board = Board(settings, self)
         self.status_bar = self.statusBar()
+        self.square_size = settings.square_size
 
         self.mcc = mcc
 
@@ -92,7 +101,7 @@ class SnakeWindow(QMainWindow):
         self.board.statusUpdated[str].connect(self.status_bar.showMessage)
 
         self.setWindowTitle('Snake')
-        self.resize(self.board.game.field.width * 20, self.board.game.field.height * 20)
+        self.resize(self.board.game.field.width * self.square_size, self.board.game.field.height * self.square_size)
         self.center()
         self.show()
 
@@ -103,10 +112,12 @@ class SnakeWindow(QMainWindow):
                   (screen.height() - size.height()) / 2)
 
     def reset(self, settings, mcc):
-        self.__init__(Game().restart(settings), mcc)
+        self.__init__(self.board.game.restart(settings), mcc)
+        self.init_ui()
 
     def close(self):
         self.mcc.close()
+        print("Closed")
         super().close()
 
 
@@ -123,13 +134,13 @@ class MCCBoard(QFrame):
 
 
 class MCCWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
         self.board = MCCBoard(self)
 
         self.sizes = (0, 0)
         self.my_size = 200, 120
+        self.factor = 20
 
         self.init_ui()
 
@@ -147,8 +158,9 @@ class MCCWindow(QMainWindow):
         self.button.clicked.connect(self.on_click)
         self.show()
 
-    def set(self, snake_window, restart):
-        self.sizes = (snake_window.board.game.field.width, snake_window.board.game.field.height)
+    def set(self, settings, restart):
+        self.sizes = (settings.width, settings.height)
+        self.factor = settings.square_size
         self.init_ui()
         self.restart = restart
         self.show()
@@ -156,8 +168,8 @@ class MCCWindow(QMainWindow):
     def set_corner(self):
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.move((screen.width() - size.width()) / 2 + (self.sizes[0]) * 20 / 2 + self.my_size[0] / 2 + 4,
-                  (screen.height() - size.height()) / 2 - self.sizes[1] * 20 / 2 + self.my_size[1] / 2)
+        self.move((screen.width() - size.width()) / 2 + (self.sizes[0]) * self.factor / 2 + self.my_size[0] / 2 + 4,
+                  (screen.height() - size.height()) / 2 - self.sizes[1] * self.factor / 2 + self.my_size[1] / 2)
         # Уроки выравнивания окон от ОМО "Костылёк", только здесь и сейчас
 
     @pyqtSlot()
