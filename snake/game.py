@@ -131,7 +131,8 @@ class Game:
 
     def restart(self, settings=None):
         if settings is None:
-            settings = Settings(width=self.field.width, height=self.field.height, wall=self.wall)
+            settings = Settings(width=self.field.width, height=self.field.height, wall=self.wall,
+                                moving_cells=self.field.moving_cells)
         self.__init__(settings)
 
     def get_direction(self, dy, dx):

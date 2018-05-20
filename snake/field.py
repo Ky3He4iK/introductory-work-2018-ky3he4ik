@@ -11,6 +11,8 @@ class Field:
         self.food_pos = -1, -1
         self._cells = [[None for _ in range(self.width)] for _ in range(self.height)]
         self.default_cell = settings.wall
+        self.moving_cells = settings.moving_sells
+        self.moving_factor = settings.moving_factor
 
     def contains_cell(self, y, x):
         return (0 <= y < self.height) and (0 <= x < self.width)
@@ -70,11 +72,11 @@ class Field:
                 elif type(self._cells[y][x]) is FoodCell:
                     food_pos = (y, x)
 
-        if self.get_chance(0.001) or suicide_pos is None:
+        if (self.get_chance(self.moving_factor) and self.moving_cells) or suicide_pos is None:
             self.change_suicide_cell()
-        if self.get_chance(0.0001) or poison_pos is None:
+        if (self.get_chance(self.moving_factor / 10) and self.moving_cells) or poison_pos is None:
             self.change_poison_cell()
-        if self.get_chance(0.0001) or food_pos is None:
+        if (self.get_chance(self.moving_factor / 10) and self.moving_cells) or food_pos is None:
             self.change_food_cell()
 
     def get_field_square(self):

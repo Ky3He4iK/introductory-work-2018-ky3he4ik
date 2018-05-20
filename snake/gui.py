@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow, QFrame, QDesktopWidget, QPushButton
+from PyQt5.QtWidgets import QMainWindow, QFrame, QDesktopWidget, QPushButton, QCheckBox, QRadioButton, QVBoxLayout, \
+    QGridLayout, QGroupBox
 from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QPainter
 
@@ -6,6 +7,7 @@ from snake.renderer import Renderer
 from snake.resourceClasses import TurnEnum
 from .game import Game
 from .Settings import Settings
+from .cells import WallCells
 
 
 # TODO: добавить ЦУП (настройки) (MCC)
@@ -73,6 +75,7 @@ class Board(QFrame):
             status = 'GAME OVER. ' + status
         elif self.game.is_paused:
             status = 'PAUSED'
+        status += "\tSnake len: " + str(self.game.snake.len)
         self.statusUpdated.emit(status)
 
     def close(self):
@@ -111,8 +114,10 @@ class SnakeWindow(QMainWindow):
         self.move((screen.width() - size.width()) / 2,
                   (screen.height() - size.height()) / 2)
 
-    def reset(self, settings, mcc):
-        self.__init__(self.board.game.restart(settings), mcc)
+    def reset(self, settings):
+        self.board = Board(settings, self)
+        self.status_bar = self.statusBar()
+        self.square_size = settings.square_size
         self.init_ui()
 
     def close(self):
@@ -121,58 +126,94 @@ class SnakeWindow(QMainWindow):
         super().close()
 
 
-class MCCBoard(QFrame):
-    UPDATE_INTERVAL = 100  # RUNNING IN THE 90'S
-    statusUpdated = pyqtSignal(str)
-
-    def __init__(self, parent):
-        super().__init__(parent)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setViewport(self.contentsRect())
-
-
 class MCCWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.board = MCCBoard(self)
+        self.settings = Settings()
 
-        self.sizes = (0, 0)
-        self.my_size = 200, 120
-        self.factor = 20
+        self.sizes = (self.settings.width, self.settings.height)
+        self.my_size = 200, 420
+        self.factor = self.settings.square_size
 
-        self.init_ui()
+
+        # self.init_ui()
 
     def init_ui(self):
-        self.setCentralWidget(self.board)
+        def set_walls():
+            def on_toggle_death(toggle):
+                if toggle:
+                    self.settings.wall = WallCells.Death
+            def on_toggle_portal(toggle):
+                if toggle:
+                    self.settings.wall = WallCells.Portals.Simple
+            def on_toggle_portal_inverted(toggle):
+                if toggle:
+                    self.settings.wall = WallCells.Portals.Inverted
+            def on_toggle_reverse(toggle):
+                if toggle:
+                    self.settings.wall = WallCells.Reverse
+            variants = [[WallCells.Death, "Death wall"], [WallCells.Portals.Simple, "Portal wall"],
+                        [WallCells.Portals.Inverted, "Inverted portal wall"], [WallCells.Reverse, "Rubber wall"]]
+
+            buttons = []
+            for w in variants:
+                radio = QRadioButton(w[1])
+                radio.setToolTip(w[0].__doc__)
+                if radio is self.settings.wall:
+                    radio.toggle()
+
+                radio.toggled.connect(on_toggle_death if w is WallCells.Death else on_toggle_portal
+                    if w is WallCells.Portals.Simple else on_toggle_portal_inverted if w is WallCells.Portals.Inverted
+                    else on_toggle_reverse if w is WallCells.Reverse else on_toggle_death)
+                buttons.append(radio)
+            return buttons
 
         self.setWindowTitle('MCC')
         self.resize(*self.my_size)
         self.set_corner()
         self.setDisabled(False)
 
-        self.button = QPushButton("Restart", self)
-        self.button.setToolTip("This is pointless, but press me")
-        self.button.move(40, 40)
-        self.button.clicked.connect(self.on_click)
+        button = QPushButton("Restart", self)
+        button.setToolTip("Restart the game")
+        button.move(40, 40)
+        button.clicked.connect(self.on_click)
+
+        v_box = QVBoxLayout()
+
+        for radio in set_walls():
+            v_box.addWidget(radio)
+
+        group_box = QGroupBox("Settings")
+        group_box.setLayout(v_box)
+        grid = QGridLayout()
+        grid.addWidget(group_box)
+        self.setLayout(grid)
         self.show()
 
     def set(self, settings, restart):
+        self.settings = settings
         self.sizes = (settings.width, settings.height)
         self.factor = settings.square_size
         self.init_ui()
         self.restart = restart
+
+        cb = QCheckBox('Move food/poison/death cells', self)
+        cb.toggle()
+        cb.stateChanged.connect(self.moving_toggle)
+
         self.show()
+
+    def moving_toggle(self, state):
+        self.settings.moving_sells = state == Qt.Checked
 
     def set_corner(self):
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.move((screen.width() - size.width()) / 2 + (self.sizes[0]) * self.factor / 2 + self.my_size[0] / 2 + 4,
+        self.move((screen.width() - size.width()) / 2 + self.sizes[0] * self.factor / 2 + self.my_size[0] / 2 + 4,
                   (screen.height() - size.height()) / 2 - self.sizes[1] * self.factor / 2 + self.my_size[1] / 2)
         # Уроки выравнивания окон от ОМО "Костылёк", только здесь и сейчас
 
     @pyqtSlot()
     def on_click(self):
-        self.restart()
+        self.restart(self.settings)
         print("Restarted")

@@ -82,13 +82,22 @@ class Wall(Cell):
 
 
 class DeathWallCell(Wall):
+    """Snake will die on bump"""
     color = COLORS.GREY
 
     def on_bump(self, game):
         game.is_dead = True
 
 
+class RubberWallCell(Wall):
+    """This wall reverse snake if bump"""
+    def __init__(self):
+        raise SyntaxError("Not implemented")
+
+
 class PortalWallCell(Wall):
+    """Snake's head will be moved to opposite side"""
+
     color = COLORS.PURPLE
 
     def __init__(self, game, y, x):
@@ -106,3 +115,28 @@ class PortalWallCell(Wall):
 
     def on_bump(self, game):
         game.snake.head = self.to
+
+
+class InvertedPortalWallCell(PortalWallCell):
+    """Like simple portal sell but x or y will be inverted"""
+    def __init__(self, game, y, x):
+        super().__init__(game, y, x)
+        if x == 0:
+            self.to = (game.field.height - y - 1, game.field.width - 2)
+        elif y == 0:
+            self.to = (game.field.height - 2, game.field.width - x - 1)
+        elif x == game.field.width - 1:
+            self.to = (game.field.height - y - 1, 1)
+        elif y == game.field.height - 1:
+            self.to = (1, game.field.width - x - 1)
+        else:
+            self.to = (y, x)
+
+
+class WallCells:
+    Death = DeathWallCell
+    Reverse = RubberWallCell
+
+    class Portals:
+        Simple = PortalWallCell
+        Inverted = InvertedPortalWallCell
