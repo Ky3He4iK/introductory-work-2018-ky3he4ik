@@ -11,7 +11,7 @@ from snake.Settings import Settings
 if __name__ == '__main__':
     app = QApplication([])
 
-    settings = Settings(width=50, height=50, wall=WallCells.Portals.Inverted, game_speed=50, square_size=10,
+    settings = Settings(width=25, height=25, wall=WallCells.Portals.Random, game_speed=30, square_size=15,
                         moving_cells=True, moving_factor=0.01)
     settings.print()
     snake = SnakeWindow(settings)

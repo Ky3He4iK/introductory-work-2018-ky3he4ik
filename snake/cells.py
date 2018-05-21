@@ -131,6 +131,11 @@ class InvertedPortalWallCell(PortalWallCell):
             self.to = (y, x)
 
 
+class RandomPortalWallCell(PortalWallCell):
+    def on_bump(self, game):
+        game.snake.head = game.field.get_random_empty_cell()
+
+
 class WallCells:
     Death = DeathWallCell
     Reverse = RubberWallCell
@@ -138,3 +143,4 @@ class WallCells:
     class Portals:
         Simple = PortalWallCell
         Inverted = InvertedPortalWallCell
+        Random = RandomPortalWallCell
