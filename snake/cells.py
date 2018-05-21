@@ -75,8 +75,6 @@ class SuicideCell(Cell):
 
 
 class Wall(Cell):
-    color = COLORS.TURQUOISE
-
     def __init__(self, game, y, x):
         pass
 

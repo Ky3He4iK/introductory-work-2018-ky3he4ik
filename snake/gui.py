@@ -183,6 +183,14 @@ class MCCWindow(QMainWindow):
         for radio in set_walls():
             v_box.addWidget(radio)
 
+        v_box.addWidget(button, alignment=Qt.AlignBottom)
+
+        cb = QCheckBox('Move food/poison/death cells', self)
+        cb.toggle()
+        cb.stateChanged.connect(self.moving_toggle)
+
+        v_box.addWidget(cb)
+
         group_box = QGroupBox("Settings")
         group_box.setLayout(v_box)
         grid = QGridLayout()
@@ -194,12 +202,8 @@ class MCCWindow(QMainWindow):
         self.settings = settings
         self.sizes = (settings.width, settings.height)
         self.factor = settings.square_size
-        self.init_ui()
+        self.set_corner()
         self.restart = restart
-
-        cb = QCheckBox('Move food/poison/death cells', self)
-        cb.toggle()
-        cb.stateChanged.connect(self.moving_toggle)
 
         self.show()
 
