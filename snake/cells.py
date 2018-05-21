@@ -89,13 +89,13 @@ class DeathWallCell(Wall):
 
 class RubberWallCell(Wall):
     """This wall reverse snake if bump"""
-    def __init__(self):
+    def __init__(self, game, y, x):
+        super().__init__(game, y, x)
         raise SyntaxError("Not implemented")
 
 
 class PortalWallCell(Wall):
     """Snake's head will be moved to opposite side"""
-
     color = COLORS.PURPLE
 
     def __init__(self, game, y, x):
