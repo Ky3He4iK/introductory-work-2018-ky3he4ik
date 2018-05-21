@@ -1,4 +1,5 @@
 import random
+from math import sqrt
 from .cells import SuicideCell, PoisonCell, FoodCell
 
 
@@ -13,6 +14,7 @@ class Field:
         self.default_cell = settings.wall
         self.moving_cells = settings.moving_sells
         self.moving_factor = settings.moving_factor
+        self.snake_head = (1, 2)
 
     def contains_cell(self, y, x):
         return (0 <= y < self.height) and (0 <= x < self.width)
@@ -25,7 +27,7 @@ class Field:
     def get_random_empty_cell(self):
         while True:
             y, x = random.randint(0, self.height - 1), random.randint(0, self.width - 1)
-            if self.is_empty(y, x):
+            if self.is_empty(y, x) and abs(self.snake_head[0] - y) > 3 and abs(self.snake_head[1] - x) > 3:
                 return y, x
 
     @staticmethod
@@ -59,6 +61,7 @@ class Field:
         return self._cells[y][x]
 
     def update(self, game):
+        self.snake_head = game.snake.head
         suicide_pos, poison_pos, food_pos = [None] * 3
         for y in range(self.height):
             for x in range(self.width):
@@ -81,3 +84,7 @@ class Field:
 
     def get_field_square(self):
         return len(self._cells) * len(self._cells[0])
+
+
+def get_distance(pos1, pos2):
+    return sqrt(sum([(pos1[i] - pos2[i]) ** 2 for i in range(len(pos1))]))
