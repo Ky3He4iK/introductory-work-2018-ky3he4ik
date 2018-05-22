@@ -13,11 +13,16 @@ class Settings:
         self.moving_factor = moving_factor
 
     def print(self):
+        def camel_case_remove(text):
+            delta = ord('A') - ord('a')
+            for c in range(ord('A'), ord('Z') + 1):
+                text = text.replace(chr(c), ' ' + chr(c - delta))
+            return text
         print("Current settings:")
         print("Field: {0}x{1} cells".format(str(self.width), str(self.height)))
         print("Cell size: {0} px".format(str(self.square_size)))
         print("Game speed: {0} ticks per second".format(str(1000 / self.game_speed)))
-        print("Wall type: {0}".format(self.wall.__class__.__name__))
+        print("Wall type: {0}".format(camel_case_remove(self.wall.__name__)))
         if self.moving_sells:
             print("Food and poison cells will be moved with chance {0}%\nDeath cell - {1}%".
                   format(str(self.moving_factor * 10), str(self.moving_factor * 100)))
