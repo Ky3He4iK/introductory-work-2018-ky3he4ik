@@ -1,4 +1,5 @@
 from .resourceClasses import COLORS
+import random
 
 
 class Cell:
@@ -134,6 +135,7 @@ class InvertedPortalWallCell(PortalWallCell):
 class RandomPortalWallCell(PortalWallCell):
     def on_bump(self, game):
         game.snake.head = game.field.get_random_empty_cell()
+        game.snake.direction = list(game.snake.TURNS.keys())[random.randint(0, len(game.snake.TURNS) - 1)]
 
 
 class WallCells:
